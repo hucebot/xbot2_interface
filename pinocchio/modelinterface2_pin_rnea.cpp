@@ -3,6 +3,12 @@
 #include <pinocchio/algorithm/rnea.hpp>
 #include <pinocchio/algorithm/rnea-derivatives.hpp>
 
+#include <pinocchio/spatial/force.hpp>
+#include <pinocchio/spatial/se3.hpp>
+#include <pinocchio/multibody/model.hpp>
+#include <pinocchio/algorithm/frames.hpp>
+#include <pinocchio/algorithm/jacobian.hpp>
+
 using namespace XBot;
 
 VecConstRef ModelInterface2Pin::computeInverseDynamics() const
@@ -22,6 +28,40 @@ VecConstRef ModelInterface2Pin::computeInverseDynamics() const
 
     return _tmp.rnea;
 }
+
+
+VecConstRef ModelInterface2Pin::computeInverseDynamics(
+    const std::map<std::string, Eigen::Vector6d>& frame_forces) const
+{
+    // Create external forces vector (all zeros initially)
+    pinocchio::container::aligned_vector<pinocchio::Force> fext(
+        _mdl.njoints, pinocchio::Force::Zero()
+    );
+
+    
+    // Set forces for specified joints
+    for(const auto& [frame_name, force] : frame_forces)
+    {
+        pinocchio::FrameIndex frame_id = _mdl.getFrameId(frame_name);
+        const pinocchio::Frame& frame_data = _mdl.frames[frame_id];
+
+        pinocchio::JointIndex joint_id = frame_data.parentJoint;
+
+        const pinocchio::SE3& jMf = frame_data.placement;
+
+        pinocchio::Force f_contact(force.head(3), force.tail(3));
+
+        fext[joint_id] += jMf.act(f_contact);
+
+    }
+    
+    return pinocchio::rnea(_mdl, _data,
+                                getJointPosition(),
+                                getJointVelocity(),
+                                getJointAcceleration(),
+                                fext);
+}
+
 
 void ModelInterface2Pin::computeInverseDynamicsDerivative(Eigen::MatrixXd& dtau_dq, Eigen::MatrixXd& dtau_dv, Eigen::MatrixXd& dtau_da)
 {
@@ -43,6 +83,60 @@ void ModelInterface2Pin::computeInverseDynamicsDerivative(Eigen::MatrixXd& dtau_
 
     dtau_da = _data.M;
 }
+
+// Convenience overload with named joint forces
+void ModelInterface2Pin::computeInverseDynamicsDerivative(
+        Eigen::MatrixXd& dtau_dq, 
+        Eigen::MatrixXd& dtau_dv, 
+        Eigen::MatrixXd& dtau_da,
+        std::map<std::string, Eigen::MatrixXd>& dtau_dfext,
+        const std::map<std::string, Eigen::Vector6d>& frame_forces)
+{
+
+    pinocchio::container::aligned_vector<pinocchio::Force> fext(_mdl.njoints, pinocchio::Force::Zero());
+  
+
+    for(const auto& [frame_name, force] : frame_forces)
+    {
+        pinocchio::FrameIndex frame_id = _mdl.getFrameId(frame_name);
+        const pinocchio::Frame& frame_data = _mdl.frames[frame_id];
+
+
+        pinocchio::JointIndex joint_id = frame_data.parentJoint;
+        const pinocchio::SE3& jMf = frame_data.placement;
+
+        pinocchio::Force f_contact(force.head(3), force.tail(3));
+
+        fext[joint_id] += jMf.act(f_contact);
+    }
+    
+    pinocchio::computeRNEADerivatives(_mdl, _data,
+                                      getJointPosition(),
+                                      getJointVelocity(),
+                                      getJointAcceleration(),
+                                      fext,
+                                      dtau_dq,
+                                      dtau_dv,
+                                      dtau_da);
+    
+    dtau_da.triangularView<Eigen::StrictlyLower>() = 
+        dtau_da.transpose().triangularView<Eigen::StrictlyLower>();
+
+
+    for(const auto& [frame_name, force] : frame_forces)
+    {
+
+        pinocchio::FrameIndex frame_id = _mdl.getFrameId(frame_name);   
+        pinocchio::computeFrameJacobian(_mdl, _data, getJointPosition(), frame_id, 
+                                        pinocchio::LOCAL, dtau_dfext.at(frame_name));
+
+        
+    }
+    
+
+
+}
+
 
 VecConstRef ModelInterface2Pin::computeGravityCompensation() const
 {

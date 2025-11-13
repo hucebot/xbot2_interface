@@ -368,6 +368,23 @@ public:
 
     virtual void computeInverseDynamicsDerivative(Eigen::MatrixXd& dtau_dq, Eigen::MatrixXd& dtau_dv, Eigen::MatrixXd& dtau_da);
 
+    virtual VecConstRef computeInverseDynamics(
+        const std::map<std::string, Eigen::Vector6d>& frame_forces) const
+    {
+        throw std::runtime_error("computeInverseDynamics with contact forces not implemented for this interface");
+    }
+    
+    // New overload with DEFAULT implementation
+    virtual void computeInverseDynamicsDerivative(
+        Eigen::MatrixXd& dtau_dq, 
+        Eigen::MatrixXd& dtau_dv, 
+        Eigen::MatrixXd& dtau_da,
+        std::map<std::string, Eigen::MatrixXd>& dtau_dfext,
+        const std::map<std::string, Eigen::Vector6d>& frame_forces)
+    {
+        throw std::runtime_error("computeInverseDynamicsDerivative with contact forces not implemented for this interface");
+    }
+
     void computeGravityCompensation(Eigen::VectorXd& gcomp) const;
 
     void computeNonlinearTerm(Eigen::VectorXd& h) const;

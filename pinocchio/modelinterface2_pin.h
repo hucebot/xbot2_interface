@@ -47,7 +47,17 @@ public:
 
     VecConstRef computeInverseDynamics() const override;
 
+    VecConstRef computeInverseDynamics(
+        const std::map<std::string, Eigen::Vector6d>& frame_forces) const override;
+
     void computeInverseDynamicsDerivative(Eigen::MatrixXd& dtau_dq, Eigen::MatrixXd& dtau_dv, Eigen::MatrixXd& dtau_da) override;
+
+    void computeInverseDynamicsDerivative(
+        Eigen::MatrixXd& dtau_dq, 
+        Eigen::MatrixXd& dtau_dv, 
+        Eigen::MatrixXd& dtau_da,
+        std::map<std::string, Eigen::MatrixXd>& dtau_dfext,
+        const std::map<std::string, Eigen::Vector6d>& frame_forces) override;
 
     VecConstRef computeGravityCompensation() const override;
 

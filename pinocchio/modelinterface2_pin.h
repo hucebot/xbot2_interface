@@ -31,6 +31,14 @@ public:
 
     Eigen::Vector6d getAccelerationTwist(int link_id) const override;
 
+
+    Eigen::Vector6d getFrameVelocityLocal(string_const_ref frame_name) const override;
+
+    Eigen::Vector6d getFrameAccelerationLocal(string_const_ref frame_name) const override;
+
+    void getFrameVelocityDerivativesLocal(string_const_ref frame_name, Eigen::MatrixXd& dv_dq, Eigen::MatrixXd& dv_dqdot) const override;
+    
+
     Eigen::Vector6d getJdotTimesV(int link_id) const override;
 
     double getMass() const override;
@@ -127,7 +135,8 @@ private:
         Crba = 256,
         Minv = 512,
         CCrba = 1024,
-        dRnea = 2048
+        dRnea = 2048,
+        KinematicsDerivatives = 4096
     };
 
     mutable uint16_t _cached_computation;

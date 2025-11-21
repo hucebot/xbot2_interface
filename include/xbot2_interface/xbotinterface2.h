@@ -297,6 +297,15 @@ public:
     bool getAccelerationTwist(string_const_ref link_name,
                               Eigen::Vector6d& a) const;
 
+
+
+    virtual Eigen::Vector6d getFrameVelocityLocal(string_const_ref frame_name) const;
+
+    virtual Eigen::Vector6d getFrameAccelerationLocal(string_const_ref frame_name) const;
+
+    virtual void getFrameVelocityDerivativesLocal(string_const_ref frame_name, Eigen::MatrixXd& dv_dq, Eigen::MatrixXd& dv_dqdot) const;
+    
+
     //
     virtual Eigen::Vector6d getJdotTimesV(int link_id) const;
 

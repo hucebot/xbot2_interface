@@ -5,6 +5,7 @@
 
 #include <pinocchio/algorithm/center-of-mass.hpp>
 #include <pinocchio/algorithm/frames.hpp>
+#include <pinocchio/algorithm/frames-derivatives.hpp>
 #include <pinocchio/algorithm/jacobian.hpp>
 #include <pinocchio/algorithm/joint-configuration.hpp>
 #include <pinocchio/algorithm/regressor.hpp>
@@ -377,6 +378,38 @@ Eigen::Vector6d ModelInterface2Pin::getAccelerationTwist(int frame_idx) const
 
     return pinocchio::getFrameClassicalAcceleration(_mdl, _data, frame_idx, _world_aligned);
 }
+
+
+Eigen::Vector6d ModelInterface2Pin::getFrameVelocityLocal(string_const_ref frame_name) const
+{
+    // check_frame_idx_throw(frame_idx);
+
+    return pinocchio::getFrameVelocity(_mdl, _data, _mdl.getFrameId(frame_name), pinocchio::LOCAL).toVector();
+
+}
+
+Eigen::Vector6d ModelInterface2Pin::getFrameAccelerationLocal(string_const_ref frame_name) const
+{
+    // check_frame_idx_throw(frame_idx);
+
+    return pinocchio::getFrameAcceleration(_mdl, _data, _mdl.getFrameId(frame_name), pinocchio::LOCAL).toVector();
+
+}
+
+void ModelInterface2Pin::getFrameVelocityDerivativesLocal(string_const_ref frame_name, Eigen::MatrixXd& dv_dq, Eigen::MatrixXd& dv_dqdot) const
+{
+    if(!(_cached_computation & KinematicsDerivatives))
+    {
+        pinocchio::computeForwardKinematicsDerivatives(_mdl, _data,
+                                 getJointPosition(),
+                                 getJointVelocity(),
+                                 getJointAcceleration());
+        _cached_computation |= KinematicsDerivatives;
+    }
+    
+    pinocchio::getFrameVelocityDerivatives(_mdl, _data, _mdl.getFrameId(frame_name), pinocchio::LOCAL, dv_dq, dv_dqdot);
+}
+
 
 Eigen::Vector6d ModelInterface2Pin::getJdotTimesV(int frame_idx) const
 {

@@ -1371,6 +1371,22 @@ bool XBotInterface::getAccelerationTwist(string_const_ref link_name, Eigen::Vect
     return true;
 }
 
+
+
+Eigen::Vector6d XBotInterface::getFrameVelocityLocal(string_const_ref frame_name) const {
+    throw std::runtime_error(__func__ + std::string(" not implemented by base class"));
+}
+
+Eigen::Vector6d XBotInterface::getFrameAccelerationLocal(string_const_ref frame_name) const{
+    throw std::runtime_error(__func__ + std::string(" not implemented by base class"));
+}
+
+void XBotInterface::getFrameVelocityDerivativesLocal(string_const_ref frame_name, Eigen::MatrixXd& dv_dq, Eigen::MatrixXd& dv_dqdot) const{
+    throw std::runtime_error(__func__ + std::string(" not implemented by base class"));
+}
+
+
+
 Eigen::Vector6d XBotInterface::getJdotTimesV(int link_id) const
 {
     throw std::runtime_error(__func__ + std::string(" not implemented by base class"));

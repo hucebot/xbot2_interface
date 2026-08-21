@@ -2,7 +2,11 @@
 #define COMMON_H
 
 
-
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <memory>
+#include <urdf_parser/urdf_parser.h>
 
 #include <chrono>
 
@@ -27,7 +31,7 @@ class TestCommon : public testing::Test
 
 protected:
 
-    urdf::ModelSharedPtr urdf;
+    urdf::ModelInterfaceSharedPtr urdf;
     srdf::ModelSharedPtr srdf;
 
     TestCommon(){}
@@ -37,8 +41,15 @@ protected:
 
     virtual void SetUp()
     {
-        urdf = std::make_shared<urdf::Model>();
-        ASSERT_TRUE(urdf->initFile(urdf_path));
+        std::ifstream file(urdf_path);
+        ASSERT_TRUE(file.is_open());
+        std::ostringstream ss;
+        ss << file.rdbuf();
+        std::string xml_string = ss.str();
+
+        urdf = urdf::parseURDF(xml_string);
+        ASSERT_TRUE(urdf!=nullptr);
+        // ASSERT_TRUE(urdf->initFile(urdf_path));
 
         if(!srdf_path.empty())
         {

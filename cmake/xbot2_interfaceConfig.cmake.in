@@ -2,7 +2,7 @@
 
 include(CMakeFindDependencyMacro)
 
-find_dependency(urdf)
+# find_dependency(urdf)
 find_dependency(srdfdom)
 find_dependency(Eigen3)
 

@@ -17,7 +17,7 @@ ModelInterface2Pin::ModelInterface2Pin(const ConfigOptions& opt):
     _cached_computation(None),
     _world_aligned(pinocchio::ReferenceFrame::LOCAL_WORLD_ALIGNED)
 {
-    pinocchio::urdf::buildModel(std::const_pointer_cast<urdf::Model>(getUrdf()), _mdl);
+    pinocchio::urdf::buildModel(std::const_pointer_cast<urdf::ModelInterface>(getUrdf()), _mdl);
 
     _data = pinocchio::Data(_mdl);
 

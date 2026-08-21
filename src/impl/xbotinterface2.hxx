@@ -64,7 +64,7 @@ private:
     XBotInterface * _api;
 
     // urdf dom
-    urdf::ModelConstSharedPtr _urdf;
+    urdf::ModelInterfaceConstSharedPtr _urdf;
 
     // srdf dom
     srdf::ModelConstSharedPtr _srdf;

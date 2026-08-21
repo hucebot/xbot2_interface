@@ -2,8 +2,13 @@
 #include "../impl/utils.h"
 
 #include <xbot2_interface/common/utils.h>
-#include <geometric_shapes/mesh_operations.h>
+// #include <geometric_shapes/mesh_operations.h>
 #include <fmt/format.h>
+
+#include <assimp/scene.h>
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
+#include <pinocchio/parsers/utils.hpp>
 
 using namespace XBot::Collision;
 
@@ -548,6 +553,38 @@ struct Overload : Ts ... {
 };
 template<class... Ts> Overload(Ts...) -> Overload<Ts...>;
 
+// borrowed from geometric_shapes
+namespace EigenSTL {
+typedef std::vector<Eigen::Vector3d, Eigen::aligned_allocator<Eigen::Vector3d>> vector_Vector3d;
+}
+void extractMeshData(const aiScene* scene, const aiNode* node, const aiMatrix4x4& parent_transform,
+                     const Eigen::Vector3d& scale, EigenSTL::vector_Vector3d& vertices,
+                     std::vector<unsigned int>& triangles)
+{
+  aiMatrix4x4 transform = parent_transform;
+  transform *= node->mTransformation;
+  for (unsigned int j = 0; j < node->mNumMeshes; ++j)
+  {
+    const aiMesh* a = scene->mMeshes[node->mMeshes[j]];
+    unsigned int offset = vertices.size();
+    for (unsigned int i = 0; i < a->mNumVertices; ++i)
+    {
+      aiVector3D v = transform * a->mVertices[i];
+      vertices.push_back(Eigen::Vector3d(v.x * scale.x(), v.y * scale.y(), v.z * scale.z()));
+    }
+    for (unsigned int i = 0; i < a->mNumFaces; ++i)
+      if (a->mFaces[i].mNumIndices == 3)
+      {
+        triangles.push_back(offset + a->mFaces[i].mIndices[0]);
+        triangles.push_back(offset + a->mFaces[i].mIndices[1]);
+        triangles.push_back(offset + a->mFaces[i].mIndices[2]);
+      }
+  }
+
+  for (unsigned int n = 0; n < node->mNumChildren; ++n)
+    extractMeshData(scene, node->mChildren[n], transform, scale, vertices, triangles);
+}
+
 bool CollisionModel::Impl::addCollisionShape(string_const_ref name,
                                              string_const_ref link,
                                              Shape::Variant shape,
@@ -669,34 +706,93 @@ bool CollisionModel::Impl::addCollisionShape(string_const_ref name,
         },
         [&](const Shape::Mesh& m)
         {
-            // read mesh file
-            auto mesh = shapes::createMeshFromResource(m.filepath);
+            std::string path=pinocchio::retrieveResourcePath(m.filepath, std::vector<std::string>());
 
-            if(!mesh)
+            Assimp::Importer importer;
+            importer.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS, aiComponent_NORMALS | aiComponent_TANGENTS_AND_BITANGENTS |
+                                                          aiComponent_COLORS | aiComponent_TEXCOORDS |
+                                                          aiComponent_BONEWEIGHTS | aiComponent_ANIMATIONS |
+                                                          aiComponent_TEXTURES | aiComponent_LIGHTS |
+                                                          aiComponent_CAMERAS | aiComponent_MATERIALS);
+            const aiScene* scene = importer.ReadFile(path,
+                                                     aiProcess_Triangulate | aiProcess_JoinIdenticalVertices |
+                                                         aiProcess_SortByPType | aiProcess_RemoveComponent);
+                                                     // hint.c_str());
+            if (!scene)
             {
                 std::cout << "Error loading mesh for collision " << name << std::endl;
                 return false;
             }
+            scene->mRootNode->mTransformation = aiMatrix4x4();
+            importer.ApplyPostProcessing(aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph);
+            if (!scene->HasMeshes())
+            {
+                std::cout << "Assimp reports scene has no meshes" << name << "\n";
+                return false;
+            }
+            EigenSTL::vector_Vector3d _vertices;
+            std::vector<unsigned int> _triangles;
+            static const Eigen::Vector3d scale(1.0, 1.0, 1.0);
+            extractMeshData(scene, scene->mRootNode, aiMatrix4x4(), scale, _vertices, _triangles);
+            if (_vertices.empty())
+            {
+                std::cout << "There are no vertices in the scene " << name << "\n";
+                return false;
+            }
+            if (_triangles.empty())
+            {
+                std::cout << "There are no triangles in the scene %s" << name << "\n";
+                return false;
+            }
+  // unsigned int nt = triangles.size() / 3;
+  // Mesh* mesh = new Mesh(vertices.size(), nt);
+  // for (unsigned int i = 0; i < vertices.size(); ++i)
+  // {
+  //   mesh->vertices[3 * i] = vertices[i].x();
+  //   mesh->vertices[3 * i + 1] = vertices[i].y();
+  //   mesh->vertices[3 * i + 2] = vertices[i].z();
+  // }
+  //
+  // std::copy(triangles.begin(), triangles.end(), mesh->triangles);
+  // mesh->computeTriangleNormals();
+  // mesh->computeVertexNormals();
+
+            /// old stuff
+
+            // // read mesh file
+
+            // auto mesh = shapes::createMeshFromResource(m.filepath);
+            // if(!mesh)
+            // {
+            //     std::cout << "Error loading mesh for collision " << name << std::endl;
+            //     return false;
+            // }
 
             // fill vertices and triangles
             std::vector<fcl::Vec3f> vertices;
             std::vector<fcl::Triangle> triangles;
 
-            for(unsigned int i = 0; i < mesh->vertex_count; ++i)
+            std::vector<fcl::Vec3f> vertices2;
+            std::vector<fcl::Triangle> triangles2;
+
+            for(unsigned int i = 0; i < _vertices.size(); ++i)
             {
-                fcl::Vec3f v(mesh->vertices[3*i]*m.scale.x(),
-                             mesh->vertices[3*i + 1]*m.scale.y(),
-                             mesh->vertices[3*i + 2]*m.scale.z());
+                // fcl::Vec3f v(mesh->vertices[3*i]*m.scale.x(),
+                //              mesh->vertices[3*i + 1]*m.scale.y(),
+                //              mesh->vertices[3*i + 2]*m.scale.z());
+
+                fcl::Vec3f v(_vertices[i].x()*m.scale.x(),
+                              _vertices[i].y()*m.scale.y(),
+                              _vertices[i].z()*m.scale.z());
 
                 vertices.push_back(v);
             }
-
-            for(unsigned int i = 0; i< mesh->triangle_count; ++i)
+            unsigned int triangle_count = _triangles.size() / 3;
+            for(unsigned int i = 0; i< triangle_count; ++i)
             {
-                fcl::Triangle t(mesh->triangles[3*i],
-                                mesh->triangles[3*i + 1],
-                                mesh->triangles[3*i + 2]);
-
+                fcl::Triangle t(_triangles[3*i],
+                                _triangles[3*i + 1],
+                                _triangles[3*i + 2]);
                 triangles.push_back(t);
             }
 

@@ -1,3 +1,4 @@
+#include <cstddef>
 #include <fstream>
 #include <iostream>
 
@@ -103,7 +104,7 @@ ModelInterface::UniquePtr ModelInterface::getModel(std::string urdf_string,
     return getModel(opt.urdf, opt.srdf, type);
 }
 
-ModelInterface::UniquePtr ModelInterface::getModel(urdf::ModelConstSharedPtr urdf,
+ModelInterface::UniquePtr ModelInterface::getModel(urdf::ModelInterfaceConstSharedPtr urdf,
                                                    srdf::ModelConstSharedPtr srdf,
                                                    std::string type)
 {
@@ -222,9 +223,12 @@ ModelInterface::UniquePtr ModelInterface::generateReducedModel(
 {
     check_mat_size(q, getNq(), 1, __func__);
 
-    auto urdf = std::make_shared<urdf::Model>();
-    urdf->initString(Utils::urdfToString(*getUrdf()));
-
+    // auto urdf = std::make_shared<urdf::ModelInterface>();
+    // urdf->initString(Utils::urdfToString(*getUrdf()));
+urdf::ModelInterfaceSharedPtr urdf = urdf::parseURDF(Utils::urdfToString(*getUrdf()));
+if (!urdf) {
+    // TODO XXX
+}
     // note: not a deep copy
     srdf::ModelSharedPtr srdf;
 
@@ -309,7 +313,7 @@ const std::string& XBotInterface::getName() const
     return getUrdf()->name_;
 }
 
-urdf::ModelConstSharedPtr XBotInterface::getUrdf() const
+urdf::ModelInterfaceConstSharedPtr XBotInterface::getUrdf() const
 {
     return impl->_urdf;
 }
@@ -2315,9 +2319,10 @@ void XBotInterface::Impl::Temporaries::setDirty()
 
 bool XBotInterface::ConfigOptions::set_urdf(std::string urdf_string)
 {
-    auto ncurdf = std::make_shared<urdf::Model>();
+    // auto ncurdf = std::make_shared<urdf::ModelInterface>();
+    auto ncurdf=urdf::parseURDF(urdf_string);
     urdf = ncurdf;
-    return ncurdf->initString(urdf_string);
+    return (ncurdf!=nullptr);
 }
 
 bool XBotInterface::ConfigOptions::set_srdf(std::string srdf_string)

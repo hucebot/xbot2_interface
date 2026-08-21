@@ -1079,7 +1079,7 @@ TEST_F(TestKinematics, checkAddBody)
 
     EXPECT_TRUE((Tbase * rel_T).isApprox(T));
 
-    auto create_modified_urdf = [](urdf::ModelConstSharedPtr old_urdf,
+    auto create_modified_urdf = [](urdf::ModelInterfaceConstSharedPtr old_urdf,
                                    std::string link_name,
                                    std::string parent_name,
                                    double mass,
@@ -1087,8 +1087,9 @@ TEST_F(TestKinematics, checkAddBody)
                                    Eigen::Affine3d pose)
     {
         // create modified URDF
-        auto durdf = std::make_shared<urdf::Model>();
-        durdf->initString(XBot::Utils::urdfToString(*old_urdf));
+        // auto durdf = std::make_shared<urdf::ModelInterface>();
+        // durdf->initString(XBot::Utils::urdfToString(*old_urdf));
+        auto durdf = urdf::parseURDF(XBot::Utils::urdfToString(*old_urdf));
 
         auto djoint = std::make_shared<urdf::Joint>();
         djoint->name = "aux_joint";

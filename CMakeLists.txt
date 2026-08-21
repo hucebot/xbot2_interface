@@ -4,7 +4,7 @@ project(xbot2_interface LANGUAGES CXX VERSION 1.1.0)
 
 option(XBOT2_IFC_BUILD_PINOCCHIO "Build Pinocchio implementation" ON)
 option(XBOT2_IFC_BUILD_RBDL "Build RBDL implementation" OFF)
-option(XBOT2_IFC_BUILD_ROS "Build ROS implementation" ON)
+option(XBOT2_IFC_BUILD_ROS "Build ROS implementation" OFF)
 option(XBOT2_IFC_BUILD_ROS2 "Build ROS2 implementation" OFF)
 option(XBOT2_IFC_BUILD_COLLISION "Build collision support (required hpp-fcl)" ON)
 option(XBOT2_IFC_BUILD_TESTS "Build tests" OFF)
@@ -15,7 +15,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_INSTALL_RPATH $ORIGIN)
 set(CMAKE_BUILD_RPATH "$ORIGIN;$ORIGIN/pinocchio;$ORIGIN/rbdl;$ORIGIN/ros")
 
-find_package(urdf REQUIRED)
 find_package(urdfdom REQUIRED)
 find_package(srdfdom REQUIRED)
 find_package(Eigen3 REQUIRED)
@@ -48,7 +47,7 @@ target_link_libraries(xbot2_interface
     PRIVATE
     fmt::fmt-header-only
     PUBLIC
-    ${urdf_LIBRARIES}
+    ${urdfdom_LIBRARIES}
     ${srdfdom_LIBRARIES}
     Eigen3::Eigen)
 
@@ -58,12 +57,11 @@ if(TARGET srdfdom::srdfdom)
     target_link_libraries(xbot2_interface
         PUBLIC
         srdfdom::srdfdom
-        urdf::urdf)
+        )
 else()
     target_include_directories(xbot2_interface
         SYSTEM PUBLIC
         ${srdfdom_INCLUDE_DIRS}
-        ${urdf_INCLUDE_DIRS}
         )
 endif()
 
@@ -95,6 +93,7 @@ target_include_directories(xbot2_interface
 target_include_directories(xbot2_interface
     SYSTEM PUBLIC
     ${srdfdom_INCLUDE_DIRS}
+    ${urdfdom_INCLUDE_DIRS}
     )
 
 set_target_properties(xbot2_interface PROPERTIES

@@ -4,12 +4,17 @@
 #include <any>
 #include <urdf_model/model.h>
 #include <srdfdom/model.h>
-
 #include "chain.h"
 #include "joint.h"
 #include "imu.h"
 #include "force_torque.h"
 #include "gripper.h"
+
+namespace urdf {
+  typedef std::shared_ptr<ModelInterface> ModelInterfaceSharedPtr;
+  typedef std::shared_ptr<const ModelInterface> ModelInterfaceConstSharedPtr;
+  typedef std::weak_ptr<ModelInterface> ModelInterfaceWeakPtr;
+}
 
 namespace XBot {
 
@@ -29,7 +34,7 @@ public:
 
     struct ConfigOptions
     {
-        urdf::ModelConstSharedPtr urdf;
+        urdf::ModelInterfaceConstSharedPtr urdf;
 
         srdf::ModelConstSharedPtr srdf;
 
@@ -58,7 +63,7 @@ public:
 
     const std::string& getName() const;
 
-    urdf::ModelConstSharedPtr getUrdf() const;
+    urdf::ModelInterfaceConstSharedPtr getUrdf() const;
 
     srdf::ModelConstSharedPtr getSrdf() const;
 
@@ -516,7 +521,7 @@ public:
                               std::string srdf_string,
                               std::string type);
 
-    static UniquePtr getModel(urdf::ModelConstSharedPtr urdf,
+    static UniquePtr getModel(urdf::ModelInterfaceConstSharedPtr urdf,
                               srdf::ModelConstSharedPtr srdf,
                               std::string type);
 

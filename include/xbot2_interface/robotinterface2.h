@@ -23,7 +23,7 @@ public:
 
     static UniquePtr getRobot(ConfigOptions opt);
 
-    static UniquePtr getRobot(urdf::ModelConstSharedPtr urdf,
+    static UniquePtr getRobot(urdf::ModelInterfaceConstSharedPtr urdf,
                               srdf::ModelConstSharedPtr srdf,
                               std::string robot_type,
                               std::string model_type);

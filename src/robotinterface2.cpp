@@ -60,7 +60,7 @@ RobotInterface::UniquePtr RobotInterface::getRobot(ConfigOptions opt)
     return UniquePtr(rob);
 }
 
-RobotInterface::UniquePtr RobotInterface::getRobot(urdf::ModelConstSharedPtr urdf,
+RobotInterface::UniquePtr RobotInterface::getRobot(urdf::ModelInterfaceConstSharedPtr urdf,
                                               srdf::ModelConstSharedPtr srdf,
                                               std::string robot_type,
                                               std::string model_type)

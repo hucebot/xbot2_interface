@@ -1,7 +1,7 @@
 
 find_package(coal QUIET)
 find_package(hpp-fcl QUIET)
-find_package(geometric_shapes REQUIRED)
+# find_package(geometric_shapes REQUIRED)
 
 if(TARGET coal::coal)
     message(STATUS "Using coal for collision detection")
@@ -24,14 +24,14 @@ target_link_libraries(collision
     PRIVATE
     fmt::fmt-header-only
     ${FCL_TARGET}
-    ${geometric_shapes_LIBRARIES}
+    # ${geometric_shapes_LIBRARIES}
     -Wl,--exclude-libs,ALL
     PUBLIC
     xbot2_interface)
 
-if(TARGET geometric_shapes::geometric_shapes)
-    target_link_libraries(collision PRIVATE geometric_shapes::geometric_shapes)
-endif()
+# if(TARGET geometric_shapes::geometric_shapes)
+#     target_link_libraries(collision PRIVATE geometric_shapes::geometric_shapes)
+# endif()
 
 
 target_compile_options(collision
@@ -47,10 +47,10 @@ target_compile_definitions(collision
     -DXBOT2IFC_DLL
     -DXBOT2IFC_DLL_EXPORTS)
 
-target_include_directories(collision
-    SYSTEM PUBLIC
-    ${geometric_shapes_INCLUDE_DIRS}
-    )
+# target_include_directories(collision
+#     SYSTEM PUBLIC
+#     ${geometric_shapes_INCLUDE_DIRS}
+#     )
 
 set_target_properties(collision PROPERTIES
     OUTPUT_NAME xbot2_interface_collision

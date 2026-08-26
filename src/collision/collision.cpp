@@ -2,7 +2,6 @@
 #include "../impl/utils.h"
 
 #include <xbot2_interface/common/utils.h>
-// #include <geometric_shapes/mesh_operations.h>
 #include <fmt/format.h>
 
 #include <assimp/scene.h>
@@ -554,6 +553,36 @@ struct Overload : Ts ... {
 template<class... Ts> Overload(Ts...) -> Overload<Ts...>;
 
 // borrowed from geometric_shapes
+
+// BSD 3-Clause License
+//
+// Copyright (c) 2008-2013, Willow Garage, Inc.
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//
+// * Redistributions of source code must retain the above copyright notice, this
+//   list of conditions and the following disclaimer.
+//
+// * Redistributions in binary form must reproduce the above copyright notice,
+//   this list of conditions and the following disclaimer in the documentation
+//   and/or other materials provided with the distribution.
+//
+// * Neither the name of the copyright holder nor the names of its
+//   contributors may be used to endorse or promote products derived from
+//   this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+// OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace EigenSTL {
 typedef std::vector<Eigen::Vector3d, Eigen::aligned_allocator<Eigen::Vector3d>> vector_Vector3d;
 }
@@ -584,6 +613,7 @@ void extractMeshData(const aiScene* scene, const aiNode* node, const aiMatrix4x4
   for (unsigned int n = 0; n < node->mNumChildren; ++n)
     extractMeshData(scene, node->mChildren[n], transform, scale, vertices, triangles);
 }
+// end of borrowed code
 
 bool CollisionModel::Impl::addCollisionShape(string_const_ref name,
                                              string_const_ref link,
@@ -717,7 +747,7 @@ bool CollisionModel::Impl::addCollisionShape(string_const_ref name,
             const aiScene* scene = importer.ReadFile(path,
                                                      aiProcess_Triangulate | aiProcess_JoinIdenticalVertices |
                                                          aiProcess_SortByPType | aiProcess_RemoveComponent);
-                                                     // hint.c_str());
+
             if (!scene)
             {
                 std::cout << "Error loading mesh for collision " << name << std::endl;
@@ -744,29 +774,6 @@ bool CollisionModel::Impl::addCollisionShape(string_const_ref name,
                 std::cout << "There are no triangles in the scene %s" << name << "\n";
                 return false;
             }
-  // unsigned int nt = triangles.size() / 3;
-  // Mesh* mesh = new Mesh(vertices.size(), nt);
-  // for (unsigned int i = 0; i < vertices.size(); ++i)
-  // {
-  //   mesh->vertices[3 * i] = vertices[i].x();
-  //   mesh->vertices[3 * i + 1] = vertices[i].y();
-  //   mesh->vertices[3 * i + 2] = vertices[i].z();
-  // }
-  //
-  // std::copy(triangles.begin(), triangles.end(), mesh->triangles);
-  // mesh->computeTriangleNormals();
-  // mesh->computeVertexNormals();
-
-            /// old stuff
-
-            // // read mesh file
-
-            // auto mesh = shapes::createMeshFromResource(m.filepath);
-            // if(!mesh)
-            // {
-            //     std::cout << "Error loading mesh for collision " << name << std::endl;
-            //     return false;
-            // }
 
             // fill vertices and triangles
             std::vector<fcl::Vec3f> vertices;
@@ -777,10 +784,6 @@ bool CollisionModel::Impl::addCollisionShape(string_const_ref name,
 
             for(unsigned int i = 0; i < _vertices.size(); ++i)
             {
-                // fcl::Vec3f v(mesh->vertices[3*i]*m.scale.x(),
-                //              mesh->vertices[3*i + 1]*m.scale.y(),
-                //              mesh->vertices[3*i + 2]*m.scale.z());
-
                 fcl::Vec3f v(_vertices[i].x()*m.scale.x(),
                               _vertices[i].y()*m.scale.y(),
                               _vertices[i].z()*m.scale.z());

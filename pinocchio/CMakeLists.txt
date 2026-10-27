@@ -24,5 +24,5 @@ target_compile_options(modelinterface2_pin
 install(
     TARGETS modelinterface2_pin
     EXPORT ${PROJECT_NAME}Targets
-    DESTINATION lib
+    DESTINATION ${XBOT2_LIB_INSTALL_DIR}
 )

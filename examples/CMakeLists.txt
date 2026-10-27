@@ -1,3 +1,4 @@
+# XXX TODO make it optional
 
 include(${CMAKE_SOURCE_DIR}/cmake/cmrc.cmake)
 

@@ -1,0 +1,19 @@
+[build-system]
+requires = ["scikit-build-core>=0.8", "pybind11"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "xbot2_interface"
+version = "5.0.0"
+description = "xbot2_interface python"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy<=1.26.4",
+]
+
+[tool.scikit-build]
+cmake.version = ">=3.20"
+build-dir = "build/{wheel_tag}"
+cmake.build-type = "Release"
+wheel.packages = []
+cmake.define = { XBOT2_IFC_BUILD_TESTS = "OFF" }

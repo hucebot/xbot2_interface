@@ -21,6 +21,14 @@ find_package(Eigen3 REQUIRED)
 
 include(GNUInstallDirs)
 
+if (SKBUILD)
+    set(XBOT2_PY_PKG_DIR "${SKBUILD_PLATLIB_DIR}/xbot2_interface")
+    # set(XBOT2_PY_PKG_ROOT_DIR "${SKBUILD_PLATLIB_DIR}")
+    set(XBOT2_LIB_INSTALL_DIR "${XBOT2_PY_PKG_DIR}") # or .libs ?
+else()
+    set(XBOT2_LIB_INSTALL_DIR "lib") # or something from GNUInstallDirs ?
+endif()
+
 add_definitions(-DBOOST_BIND_GLOBAL_PLACEHOLDERS)
 
 # internal fmt
@@ -102,13 +110,14 @@ set_target_properties(xbot2_interface PROPERTIES
 install(
     TARGETS xbot2_interface
     EXPORT ${PROJECT_NAME}Targets
-    DESTINATION lib
+    DESTINATION ${XBOT2_LIB_INSTALL_DIR}
 )
 
-install(DIRECTORY include/xbot2_interface
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/xbot2_interface
+if (NOT SKBUILD)
+    install(DIRECTORY include/xbot2_interface
+            DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/xbot2_interface
     )
-
+endif()
 
 if(${XBOT2_IFC_BUILD_PINOCCHIO})
     add_subdirectory(pinocchio/)
@@ -132,14 +141,18 @@ endif()
 
 add_subdirectory(python)
 
-add_subdirectory(examples)
+if (NOT SKBUILD)
+    add_subdirectory(examples)
+endif()
 
 if(${XBOT2_IFC_BUILD_TESTS})
 	enable_testing()
 	add_subdirectory(test)
 endif()
 
-include(cmake/ExportProject.cmake)
-export_project()
+if(NOT SKBUILD)
+    include(cmake/ExportProject.cmake)
+    export_project()
+endif()
 
 include(cmake/GenerateDeb.cmake)

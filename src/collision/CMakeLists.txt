@@ -59,5 +59,5 @@ set_target_properties(collision PROPERTIES
 install(
     TARGETS collision
     EXPORT ${PROJECT_NAME}Targets
-    DESTINATION lib
+    DESTINATION ${XBOT2_LIB_INSTALL_DIR}
 )

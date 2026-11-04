@@ -8,7 +8,7 @@ if(${pybind11_FOUND} AND ${COMPILE_PYTHON_BINDINGS})
 
     message(STATUS "Found python (${Python3_EXECUTABLE}) will compile python bindings")
     if(SKBUILD)
-        set(XBOT2_PY_PKG_DIR "${SKBUILD_PLATLIB_DIR}/xbot2_interface")
+        set(XBOT2_PY_PKG_DIR "${SKBUILD_PLATLIB_DIR}/opensot_model_interface")
         # set(XBOT2_PY_PKG_ROOT_DIR "${SKBUILD_PLATLIB_DIR}")
     else()
         execute_process(
@@ -17,7 +17,7 @@ if(${pybind11_FOUND} AND ${COMPILE_PYTHON_BINDINGS})
             OUTPUT_STRIP_TRAILING_WHITESPACE)
 
         message(STATUS "Python install dir: ${PYTHON_SITE}")
-        set(XBOT2_PY_PKG_DIR "${PYTHON_SITE}/xbot2_interface")
+        set(XBOT2_PY_PKG_DIR "${PYTHON_SITE}/opensot_model_interface")
         # set(XBOT2_PY_PKG_ROOT_DIR "${PYTHON_SITE}")
     endif()
 

@@ -22,7 +22,7 @@ find_package(Eigen3 REQUIRED)
 include(GNUInstallDirs)
 
 if (SKBUILD)
-    set(XBOT2_PY_PKG_DIR "${SKBUILD_PLATLIB_DIR}/xbot2_interface")
+    set(XBOT2_PY_PKG_DIR "${SKBUILD_PLATLIB_DIR}/opensot_model_interface")
     # set(XBOT2_PY_PKG_ROOT_DIR "${SKBUILD_PLATLIB_DIR}")
     set(XBOT2_LIB_INSTALL_DIR "${XBOT2_PY_PKG_DIR}") # or .libs ?
 else()
@@ -155,4 +155,4 @@ if(NOT SKBUILD)
     export_project()
 endif()
 
-include(cmake/GenerateDeb.cmake)
+# include(cmake/GenerateDeb.cmake)

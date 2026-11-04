@@ -3,7 +3,7 @@ requires = ["scikit-build-core>=0.8", "pybind11"]
 build-backend = "scikit_build_core.build"
 
 [project]
-name = "xbot2_interface"
+name = "opensot_model_interface"
 version = "5.0.0"
 description = "xbot2_interface python"
 requires-python = ">=3.10"

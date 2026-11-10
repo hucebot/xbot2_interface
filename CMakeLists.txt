@@ -8,6 +8,7 @@ option(XBOT2_IFC_BUILD_ROS "Build ROS implementation" OFF)
 option(XBOT2_IFC_BUILD_ROS2 "Build ROS2 implementation" OFF)
 option(XBOT2_IFC_BUILD_COLLISION "Build collision support (required hpp-fcl)" ON)
 option(XBOT2_IFC_BUILD_TESTS "Build tests" OFF)
+option(XBOT2_IFC_BUILD_EXAMPLES "Build examples" OFF)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -141,7 +142,7 @@ endif()
 
 add_subdirectory(python)
 
-if (NOT SKBUILD)
+if (${XBOT2_IFC_BUILD_EXAMPLES})
     add_subdirectory(examples)
 endif()
 

@@ -225,10 +225,11 @@ ModelInterface::UniquePtr ModelInterface::generateReducedModel(
 
     // auto urdf = std::make_shared<urdf::ModelInterface>();
     // urdf->initString(Utils::urdfToString(*getUrdf()));
-urdf::ModelInterfaceSharedPtr urdf = urdf::parseURDF(Utils::urdfToString(*getUrdf()));
-if (!urdf) {
-    // TODO XXX
-}
+    urdf::ModelInterfaceSharedPtr urdf = urdf::parseURDF(Utils::urdfToString(*getUrdf()));
+    if (!urdf)
+    {
+        throw std::runtime_error("failed to parse urdf");
+    }
     // note: not a deep copy
     srdf::ModelSharedPtr srdf;
 

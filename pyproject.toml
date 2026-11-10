@@ -16,11 +16,11 @@ cmake.version = ">=3.20"
 build-dir = "build/{wheel_tag}"
 cmake.build-type = "Release"
 wheel.packages = []
-cmake.define = { XBOT2_IFC_BUILD_TESTS = "OFF" }
+cmake.define = { XBOT2_IFC_BUILD_TESTS = "OFF" , XBOT2_IFC_BUILD_EXAMPLES = "OFF"}
 
 [tool.cibuildwheel]
 build = "cp310-* cp311-* cp312-* cp313-*"
 skip = "*-musllinux_*"
 manylinux-x86_64-image = "manylinux_2_28"
-# test-command = "python -c 'import opensot_model_interface'"
+
 

@@ -10,6 +10,12 @@ requires-python = ">=3.10"
 dependencies = [
     "numpy<=1.26.4",
 ]
+license = "Apache-2.0 AND MIT AND BSD-3-Clause"
+license-files = [
+  "LICENSE",
+  "external/fmt-10.2.1/LICENSE*",
+  "src/collision/LICENSE-extractMeshData.txt",
+]
 
 [tool.scikit-build]
 cmake.version = ">=3.20"

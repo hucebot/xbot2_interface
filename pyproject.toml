@@ -15,7 +15,11 @@ license-files = [
   "LICENSE",
   "external/fmt-10.2.1/LICENSE*",
   "src/collision/LICENSE-extractMeshData.txt",
+  "THIRD_PARTY_NOTICES.md",
 ]
+
+[project.urls]
+Homepage = "https://github.com/hucebot/xbot2_interface"
 
 [tool.scikit-build]
 cmake.version = ">=3.20"
